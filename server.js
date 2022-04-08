@@ -16,6 +16,8 @@ client.on("messageCreate", function(msg) {
             };
         };
     };
+
+    console.log(msg.content.slice(0, 1))
 });
 
 client.login("ODcwNTczOTMzMTYwNzE0MjYx.YQOvKA.STKc-2np_l8uwlyNMTDyH0frwE4");
