@@ -10,8 +10,10 @@ client.on("ready", function() {
 
 client.on("messageCreate", function(msg) {
     if (!msg.author.bot) {
-        if (msg.content.match("👍")) {
-            msg.react("👍");
+        if (msg.content.slice(0, 1) == "-") {
+            if (msg.content.match("👍")) {
+                msg.react("👍");
+            };
         };
     };
 });
