@@ -1,4 +1,4 @@
-const ytdl = require("ytdl-core");
+const ytdl = require("ytdl");
 const ytSearch = require("yt-search");
 
 var music = [];
