@@ -19,7 +19,7 @@ client.on("ready", function() {
     });
 });
 
-client.on("presenceUpdate", function(presence) {
+/*client.on("presenceUpdate", function(presence) {
     const member = presence.guild.members.cache.get(presence.userId);
 
     if (presence.activities && presence.activities[0]) {
@@ -27,7 +27,7 @@ client.on("presenceUpdate", function(presence) {
             member.user.send("Hör auf League of Legends zu spielen!");
         };
     };
-});
+});*/
 
 client.on("messageCreate", function(msg) {
     if (!msg.author.bot) {

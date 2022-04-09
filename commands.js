@@ -1,7 +1,9 @@
 const { MessageEmbed } = require("discord.js");
 
-commands = [];
-fakten = [
+const music = require("./music.js")
+
+var commands = [];
+const fakten = [
     "Martin stinkt.",
     "Klaus stinkt.",
     "Paula stinkt.",
@@ -73,6 +75,10 @@ createCmd("repeat", "Repeats everything you say.", false, function(client, msg, 
 
 createCmd("fakt", "Tells you a fact.", false, function(client, msg, msgContent) {
     msg.reply(fakten[Math.floor(Math.random() * fakten.length)]);
+});
+
+createCmd("play", "Plays the song you're looking for.", true, function(client, msg, msgContent) {
+    
 });
 
 createCmd("setstream", "Sets the activity of the bot.", false, function(client, msg, msgContent) {
