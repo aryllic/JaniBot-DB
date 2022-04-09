@@ -22,7 +22,7 @@ client.on("ready", function() {
 client.on("presenceUpdate", function(presence) {
     const member = presence.guild.members.cache.get(presence.userId);
 
-    if (presence.activities[0]) {
+    if (presence.activities && presence.activities[0]) {
         if (presence.activities[0].name.match("League of Legends") && member.user.username == "Aim_Katze_AT") {
             member.user.send("Hör auf League of Legends zu spielen!");
         };
