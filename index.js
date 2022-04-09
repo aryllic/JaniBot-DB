@@ -2,17 +2,31 @@ require("dotenv").config();
 const discord = require("discord.js");
 const client = new discord.Client({intents: [
     "GUILDS",
-    "GUILD_MESSAGES"
+    "GUILD_MESSAGES",
+    "GUILD_MEMBERS",
+    "GUILD_PRESENCES",
+    "DIRECT_MESSAGES"
 ]});
 
 const commands = require("./commands.js");
 
-/*client.guilds.forEach(guild => {
-
-});*/
-
 client.on("ready", function() {
     console.log("Bot started!");
+
+    client.user.setActivity("-cmds", {
+        type: "STREAMING",
+        url: "https://www.twitch.tv/discord"
+    });
+});
+
+client.on("presenceUpdate", function(presence) {
+    const member = presence.guild.members.cache.get(presence.userId);
+
+    if (presence.activities[0]) {
+        if (presence.activities[0].name.match("League of Legends") && member.user.username == "Aim_Katze_AT") {
+            member.user.send("Hör auf League of Legends zu spielen!");
+        };
+    };
 });
 
 client.on("messageCreate", function(msg) {
@@ -25,7 +39,7 @@ client.on("messageCreate", function(msg) {
                 if (cmd.needsMod) {
 
                 } else {
-                    cmd.func(msg, msgContent);
+                    cmd.func(client, msg, msgContent);
                 };
             } else {
                 msg.reply("Sorry! I couldn't find the command you were looking for.");
