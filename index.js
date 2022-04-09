@@ -9,8 +9,6 @@ const client = new discord.Client({intents: [
 ]});
 
 const commands = require("./commands.js");
-const ytdl = require("ytdl-core");
-const ytSearch = require("yt-search");
 
 client.on("ready", function() {
     console.log("Bot started!");
