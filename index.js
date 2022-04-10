@@ -5,6 +5,7 @@ const client = new discord.Client({intents: [
     "GUILD_MESSAGES",
     "GUILD_MEMBERS",
     "GUILD_PRESENCES",
+    "GUILD_VOICE_STATES",
     "DIRECT_MESSAGES"
 ]});
 const commands = require("./commands.js");

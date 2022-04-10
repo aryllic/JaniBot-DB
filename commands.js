@@ -92,7 +92,7 @@ createCmd("jump", "Jumps to the song you're looking for.", true, function(client
     };
 });
 
-createCmd("loop", "Loops the queue.", true, function(client, msg, msgContent) {
+createCmd("loop", "Loops the queue.", false, function(client, msg, msgContent) {
     music.loop(client, msg, msgContent);
 });
 
@@ -100,7 +100,7 @@ createCmd("stop", "Stops the groove.", true, function(client, msg, msgContent) {
     music.stop(client, msg, msgContent);
 });
 
-createCmd("q", "Displays all of the songs in the queue.", true, function(client, msg, msgContent) {
+createCmd("q", "Displays all of the songs in the queue.", false, function(client, msg, msgContent) {
     music.queue(client, msg, msgContent);
 });
 

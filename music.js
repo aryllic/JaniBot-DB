@@ -1,6 +1,8 @@
-const { joinVoiceChannel, entersState, VoiceConnectionStatus } = require('@discordjs/voice');
+const { MessageEmbed } = require("discord.js");
+const { joinVoiceChannel, entersState, createAudioResource, createAudioPlayer, NoSubscriberBehavior, AudioPlayerStatus, VoiceConnectionStatus } = require('@discordjs/voice');
 const ytdl = require("ytdl-core");
 const ytSearch = require("yt-search");
+require("libsodium-wrappers");
 
 const music = [];
 const queue = new Map();
@@ -36,7 +38,7 @@ async function joinVc(channel) {
 	const connection = joinVoiceChannel({
 		channelId: channel.id,
 		guildId: channel.guild.id,
-		adapterCreator: channel.guild.voiceAdapterCreator,
+		adapterCreator: channel.guild.voiceAdapterCreator
 	});
 
 	try {
@@ -49,30 +51,64 @@ async function joinVc(channel) {
 };
 
 const videoPlayer = async function(guild, song) {
-    const songQueue = getQueue(guild.id);
+    const serverQueue = getQueue(guild.id);
 
     if (!song) {
-        songQueue.voice_channel.leave();
-        queue.delete(guild.id);
+        if (serverQueue.connection) {
+            serverQueue.connection.destroy();
+            serverQueue.connection = null;
+        };
+
+        serverQueue.resource = null;
+        serverQueue.playing = false;
         return;
     };
 
-    const stream = ytdl(song.url, {filter: "audioonly"});
+    if (!serverQueue.connection) {
+        return;
+    };
 
-    songQueue.connection.play(stream, { seek: 0, volume: 0.5 })
-    .on("finish", () => {
-        songQueue.songs.shift();
-        videoPlayer(guild, songQueue.songs[0]);
+    const stream = ytdl(song.url, { filter: "audioonly" });
+
+    if (!serverQueue.resource) {
+        serverQueue.resource = createAudioResource(stream);
+    };
+
+    await serverQueue.player.play(serverQueue.resource, { seek: 0, volume: 0.5 });
+    serverQueue.connection.subscribe(serverQueue.player);
+    serverQueue.playing = true;
+
+    serverQueue.player.on('error', error => {
+        console.log(`Audio-Player-Error: ${error.message}`);
     });
 
-    await songQueue.textChannel.send(`Now playing **${song.title}**`);
+    serverQueue.player.on(AudioPlayerStatus.Idle, async function() {
+        serverQueue.playing = false;
+        
+        if (serverQueue.looping == "Queue") {
+            serverQueue.songs.push(serverQueue.songs[0]);
+            serverQueue.songs.shift();
+        } else if (serverQueue.looping == false) {
+            serverQueue.songs.shift();
+        };
+
+        serverQueue.resource = null;
+        videoPlayer(guild, serverQueue.songs[0]);
+    });
+
+    const msgEmbed = new MessageEmbed()
+            .setColor("#4ec200")
+            .setTitle("Now playing:")
+            .setDescription(song.title);
+
+    await serverQueue.textChannel.send({ embeds: [msgEmbed] });
 };
 
 music.play = async function(client, msg, msgContent) {
     const memberVc = checkVc(msg);
 
     if (memberVc) {
-        const serverQueue = getQueue(msg.guild.id);
+        let serverQueue = getQueue(msg.guild.id);
         let song = {};
 
         if (ytdl.validateURL(msgContent[1])) {
@@ -108,24 +144,42 @@ music.play = async function(client, msg, msgContent) {
                 voiceChannel: memberVc,
                 textChannel: msg.channel,
                 connection: null,
+                resource: null,
+                player: createAudioPlayer({behaviors: { noSubscriber: NoSubscriberBehavior.Pause }}),
+                playing: false,
+                looping: false,
                 songs: []
             };
 
             queue.set(msg.guild.id, queueConstructor);
-            queueConstructor.songs.push(song);
+            serverQueue = getQueue(msg.guild.id);
+        };
 
+        if (!serverQueue.connection) {
             try {
                 const connection = await joinVc(memberVc);
-                queueConstructor.connection = connection;
-                videoPlayer(msg.guild, queueConstructor.songs[0]);
+                serverQueue.connection = connection;
+                serverQueue.songs.push(song);
+                videoPlayer(msg.guild, serverQueue.songs[0]);
             } catch (err) {
                 queue.delete(msg.guild.id);
                 msg.channel.send("There was an error connecting!");
                 console.log(err);
             };
-        } else{
-            serverQueue.songs.push(song);
-            msg.channel.send(`**${song.title}** added to queue!`);
+        } else {
+            if (!serverQueue.playing) {
+                serverQueue.songs.push(song);
+                videoPlayer(msg.guild, serverQueue.songs[0]);
+            } else {
+                serverQueue.songs.push(song);
+
+                const msgEmbed = new MessageEmbed()
+                    .setColor("#4ec200")
+                    .setTitle("Added to queue:")
+                    .setDescription(song.title);
+
+                await songQueue.textChannel.send({ embeds: [msgEmbed] });
+            };
         };
     };
 };
@@ -139,7 +193,19 @@ music.jump = function(client, msg, msgContent) {
 };
 
 music.loop = function(client, msg, msgContent) {
+    const serverQueue = getQueue(msg.guild.id);
 
+    if (serverQueue) {
+        if (!serverQueue.looping) {
+            serverQueue.looping = "Queue";
+            serverQueue.textChannel.send("Now looping the queue!");
+        } else {
+            serverQueue.looping = false;
+            serverQueue.textChannel.send("Looping is now disabled!");
+        };
+    } else {
+        msg.channel.send("There is no song queue to loop!");
+    };
 };
 
 music.stop = function(client, msg, msgContent) {
@@ -147,7 +213,24 @@ music.stop = function(client, msg, msgContent) {
 };
 
 music.queue = function(client, msg, msgContent) {
+    const serverQueue = getQueue(msg.guild.id);
+    
+    if (serverQueue) {
+        let msgDesc = "";
 
+        serverQueue.songs.forEach(song => {
+            msgDesc = msgDesc + song.title + "\n\n"
+        });
+
+        const msgEmbed = new MessageEmbed()
+            .setColor("#4ec200")
+            .setTitle("Queue:")
+            .setDescription(msgDesc);
+
+        msg.channel.send({ embeds: [msgEmbed] });
+    } else {
+        msg.channel.send("There is no song queue!");
+    };
 };
 
 module.exports = music;
