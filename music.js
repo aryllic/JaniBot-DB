@@ -74,11 +74,10 @@ const videoPlayer = async function(guild, song) {
 
     if (serverQueue.connection) {
         serverQueue.connection.subscribe(serverQueue.player);
+        serverQueue.playing = true;
     } else {
         return;
     };
-
-    serverQueue.playing = true;
 
     serverQueue.player.on('error', error => {
         console.log(`Audio-Player-Error: ${error.message}`);
@@ -164,7 +163,7 @@ music.play = async function(client, msg, msgContent) {
                 serverQueue.songs.push(song);
                 videoPlayer(msg.guild, serverQueue.songs[0]);
             } catch (err) {
-                queue.delete(msg.guild.id);
+                //queue.delete(msg.guild.id);
                 msg.channel.send("There was an error connecting!");
                 console.log(err);
             };
@@ -208,6 +207,10 @@ music.loop = function(client, msg, msgContent) {
     } else {
         msg.channel.send("There is no song queue to loop!");
     };
+};
+
+music.remove = function(client, msg, msgContent) {
+
 };
 
 music.stop = function(client, msg, msgContent) {

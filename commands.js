@@ -10,7 +10,7 @@ const fakten = [
     "Sind die Hühner platt wie Teller, war der Traktor wieder schneller.",
     "Lieber ein Schitzel am Teller, als bei Fritzl im Keller.",
     "Wenn man mit Schulden stirbt, hat man Gewinn gemacht.",
-    "Wer anderen eine Grube gräbt muss aufpassen, dass man nicht über 3m³ Aushub kommt, sonst braucht man eine Baugenehmigung.",
+    "Wer anderen eine Grube gräbt muss aufpassen, dass er nicht über 3m³ Aushub kommt, sonst braucht er eine Baugenehmigung.",
     "Trinkt der Bauer zu viel Bier, melkt der Trottel seinen Stier.",
     "Lieber zwei Damen im Arm, als zwei Arme im Darm.",
     "Läuft das Pferd alleine um die Ecke, liegt der Reiter in der Hecke.",
@@ -60,7 +60,7 @@ createCmd("cmds", "Returns all the commands this bot has available.", false, fun
         .setTitle("Commands:")
         .setDescription(msgDesc);
     
-    msg.channel.send({embeds: [msgEmbed]});
+    msg.channel.send({ embeds: [msgEmbed] });
 });
 
 createCmd("repeat", "Repeats everything you say.", false, function(client, msg, msgContent) {
@@ -94,6 +94,10 @@ createCmd("jump", "Jumps to the song you're looking for.", false, function(clien
 
 createCmd("loop", "Loops the queue.", false, function(client, msg, msgContent) {
     music.loop(client, msg, msgContent);
+});
+
+createCmd("r", "Removes the song you're looking for.", false, function(client, msg, msgContent) {
+    music.remove(client, msg, msgContent);
 });
 
 createCmd("stop", "Stops the groove.", false, function(client, msg, msgContent) {
