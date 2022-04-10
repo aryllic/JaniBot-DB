@@ -1,5 +1,5 @@
 const { MessageEmbed } = require("discord.js");
-const music = require("./music.js")
+const music = require("./music.js");
 
 const commands = [];
 const fakten = [
@@ -33,8 +33,8 @@ function createCmd(name, desc, needsMod, func) {
         desc: desc,
         needsMod: needsMod,
         func: func
-    }
-}
+    };
+};
 
 commands.findCmd = function(name) {
     let foundCmd = false;

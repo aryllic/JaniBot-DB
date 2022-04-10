@@ -51,6 +51,8 @@ async function joinVc(channel) {
 
 const videoPlayer = async function(guild, song) {
     const serverQueue = getQueue(guild.id);
+    serverQueue.player = createAudioPlayer({behaviors: { noSubscriber: NoSubscriberBehavior.Pause }});
+    console.log("A")
 
     if (!song) {
         if (serverQueue.connection) {
@@ -58,25 +60,23 @@ const videoPlayer = async function(guild, song) {
             serverQueue.connection = null;
         };
 
-        serverQueue.resource = null;
         serverQueue.playing = false;
         return;
     };
 
     const stream = ytdl(song.url, { filter: "audioonly" });
+    const resource = createAudioResource(stream);
 
-    if (!serverQueue.resource) {
-        serverQueue.resource = createAudioResource(stream);
-    };
+    await serverQueue.player.play(resource);
+    serverQueue.connection.subscribe(serverQueue.player);
+    serverQueue.playing = true;
 
-    await serverQueue.player.play(serverQueue.resource);
+    const msgEmbed = new MessageEmbed()
+        .setColor("#4ec200")
+        .setTitle("Now playing:")
+        .setDescription(song.title);
 
-    if (serverQueue.connection) {
-        serverQueue.connection.subscribe(serverQueue.player);
-        serverQueue.playing = true;
-    } else {
-        return;
-    };
+    serverQueue.textChannel.send({ embeds: [msgEmbed] });
 
     serverQueue.player.on('error', error => {
         console.log(`Audio-Player-Error: ${error.message}`);
@@ -92,16 +92,8 @@ const videoPlayer = async function(guild, song) {
             serverQueue.songs.shift();
         };
 
-        serverQueue.resource = null;
         videoPlayer(guild, serverQueue.songs[0]);
     });
-
-    const msgEmbed = new MessageEmbed()
-            .setColor("#4ec200")
-            .setTitle("Now playing:")
-            .setDescription(song.title);
-
-    await serverQueue.textChannel.send({ embeds: [msgEmbed] });
 };
 
 music.play = async function(client, msg, msgContent) {
@@ -144,8 +136,7 @@ music.play = async function(client, msg, msgContent) {
                 voiceChannel: memberVc,
                 textChannel: msg.channel,
                 connection: null,
-                resource: null,
-                player: createAudioPlayer({behaviors: { noSubscriber: NoSubscriberBehavior.Pause }}),
+                player: null,
                 playing: false,
                 looping: false,
                 songs: []
@@ -157,7 +148,7 @@ music.play = async function(client, msg, msgContent) {
 
         if (!serverQueue.connection) {
             try {
-                const connection = await joinVc(memberVc);
+                const connection = await joinVc(memberVc);                
                 serverQueue.connection = connection;
                 serverQueue.songs.push(song);
                 videoPlayer(msg.guild, serverQueue.songs[0]);
