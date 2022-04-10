@@ -45,18 +45,17 @@ async function joinVc(channel) {
 		await entersState(connection, VoiceConnectionStatus.Ready, 30e3);
 		return connection;
 	} catch (error) {
-		connection.destroy();
 		throw error;
 	};
 };
 
 const videoPlayer = async function(guild, song) {
     const serverQueue = getQueue(guild.id);
+    console.log("CALL")
 
     if (!song) {
         if (serverQueue.connection) {
             serverQueue.connection.destroy();
-            console.log(serverQueue.connection)
         };
 
         serverQueue.resource = null;
