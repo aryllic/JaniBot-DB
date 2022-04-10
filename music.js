@@ -55,6 +55,7 @@ const videoPlayer = async function(guild, song) {
     if (!song) {
         if (serverQueue.connection) {
             serverQueue.connection.destroy();
+            serverQueue.connection = null;
         };
 
         serverQueue.resource = null;
@@ -69,7 +70,13 @@ const videoPlayer = async function(guild, song) {
     };
 
     await serverQueue.player.play(serverQueue.resource);
-    serverQueue.connection.subscribe(serverQueue.player);
+
+    if (serverQueue.connection) {
+        serverQueue.connection.subscribe(serverQueue.player);
+    } else {
+        return;
+    };
+    
     serverQueue.playing = true;
 
     serverQueue.player.on('error', error => {
