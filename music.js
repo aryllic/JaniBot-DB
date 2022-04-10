@@ -55,9 +55,8 @@ const videoPlayer = async function(guild, song) {
 
     if (!song) {
         if (serverQueue.connection) {
-            console.log("connection destroy")
             serverQueue.connection.destroy();
-            serverQueue.connection = null;
+            console.log(serverQueue.connection)
         };
 
         serverQueue.resource = null;
