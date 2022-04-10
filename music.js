@@ -51,7 +51,6 @@ async function joinVc(channel) {
 
 const videoPlayer = async function(guild, song) {
     const serverQueue = getQueue(guild.id);
-    console.log("CALL")
 
     if (!song) {
         if (serverQueue.connection) {
