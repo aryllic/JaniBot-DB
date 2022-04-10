@@ -55,6 +55,7 @@ const videoPlayer = async function(guild, song) {
 
     if (!song) {
         if (serverQueue.connection) {
+            console.log("connection destroy")
             serverQueue.connection.destroy();
             serverQueue.connection = null;
         };
@@ -64,17 +65,13 @@ const videoPlayer = async function(guild, song) {
         return;
     };
 
-    if (!serverQueue.connection) {
-        return;
-    };
-
     const stream = ytdl(song.url, { filter: "audioonly" });
 
     if (!serverQueue.resource) {
         serverQueue.resource = createAudioResource(stream);
     };
 
-    await serverQueue.player.play(serverQueue.resource, { seek: 0, volume: 0.5 });
+    await serverQueue.player.play(serverQueue.resource);
     serverQueue.connection.subscribe(serverQueue.player);
     serverQueue.playing = true;
 
