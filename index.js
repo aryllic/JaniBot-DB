@@ -7,7 +7,6 @@ const client = new discord.Client({intents: [
     "GUILD_PRESENCES",
     "DIRECT_MESSAGES"
 ]});
-
 const commands = require("./commands.js");
 
 client.on("ready", function() {
@@ -17,6 +16,10 @@ client.on("ready", function() {
         type: "STREAMING",
         url: "https://www.twitch.tv/discord"
     });
+});
+
+client.on("unhandledRejection", function(error) {
+    console.error("Promise rejection:", error);
 });
 
 /*client.on("presenceUpdate", function(presence) {

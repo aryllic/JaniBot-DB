@@ -1,8 +1,7 @@
 const { MessageEmbed } = require("discord.js");
-
 const music = require("./music.js")
 
-var commands = [];
+const commands = [];
 const fakten = [
     "Martin stinkt.",
     "Klaus stinkt.",
@@ -61,7 +60,7 @@ createCmd("cmds", "Returns all the commands this bot has available.", false, fun
         .setTitle("Commands:")
         .setDescription(msgDesc);
     
-    msg.reply({embeds: [msgEmbed]});
+    msg.channel.send({embeds: [msgEmbed]});
 });
 
 createCmd("repeat", "Repeats everything you say.", false, function(client, msg, msgContent) {
@@ -69,16 +68,40 @@ createCmd("repeat", "Repeats everything you say.", false, function(client, msg, 
         let joinedContent = msgContent.join(" ");
         let replyString = joinedContent.slice(7, joinedContent.length);
 
-        msg.reply(replyString);
+        msg.channel.send(replyString);
     };
 });
 
 createCmd("fakt", "Tells you a fact.", false, function(client, msg, msgContent) {
-    msg.reply(fakten[Math.floor(Math.random() * fakten.length)]);
+    msg.channel.send(fakten[Math.floor(Math.random() * fakten.length)]);
 });
 
-createCmd("play", "Plays the song you're looking for.", true, function(client, msg, msgContent) {
-    
+createCmd("p", "Plays the song you're looking for.", false, function(client, msg, msgContent) {
+    if (msgContent[1]) {
+        music.play(client, msg, msgContent);
+    };
+});
+
+createCmd("skip", "Skips the current song.", true, function(client, msg, msgContent) {
+    music.skip(client, msg, msgContent);
+});
+
+createCmd("jump", "Jumps to the song you're looking for.", true, function(client, msg, msgContent) {
+    if (msgContent[1]) {
+        music.jump(client, msg, msgContent);
+    };
+});
+
+createCmd("loop", "Loops the queue.", true, function(client, msg, msgContent) {
+    music.loop(client, msg, msgContent);
+});
+
+createCmd("stop", "Stops the groove.", true, function(client, msg, msgContent) {
+    music.stop(client, msg, msgContent);
+});
+
+createCmd("q", "Displays all of the songs in the queue.", true, function(client, msg, msgContent) {
+    music.queue(client, msg, msgContent);
 });
 
 createCmd("setstream", "Sets the activity of the bot.", false, function(client, msg, msgContent) {
