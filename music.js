@@ -3,6 +3,7 @@ const { joinVoiceChannel, entersState, createAudioResource, createAudioPlayer, N
 const ytdl = require("ytdl-core");
 const ytSearch = require("yt-search");
 require("libsodium-wrappers");
+require("ffmpeg")
 
 const music = [];
 const queue = new Map();

@@ -82,11 +82,11 @@ createCmd("p", "Plays the song you're looking for.", false, function(client, msg
     };
 });
 
-createCmd("skip", "Skips the current song.", true, function(client, msg, msgContent) {
+createCmd("skip", "Skips the current song.", false, function(client, msg, msgContent) {
     music.skip(client, msg, msgContent);
 });
 
-createCmd("jump", "Jumps to the song you're looking for.", true, function(client, msg, msgContent) {
+createCmd("jump", "Jumps to the song you're looking for.", false, function(client, msg, msgContent) {
     if (msgContent[1]) {
         music.jump(client, msg, msgContent);
     };
@@ -96,7 +96,7 @@ createCmd("loop", "Loops the queue.", false, function(client, msg, msgContent) {
     music.loop(client, msg, msgContent);
 });
 
-createCmd("stop", "Stops the groove.", true, function(client, msg, msgContent) {
+createCmd("stop", "Stops the groove.", false, function(client, msg, msgContent) {
     music.stop(client, msg, msgContent);
 });
 
