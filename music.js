@@ -178,7 +178,7 @@ music.play = async function(client, msg, msgContent) {
                     .setTitle("Added to queue:")
                     .setDescription(song.title);
 
-                await songQueue.textChannel.send({ embeds: [msgEmbed] });
+                await serverQueue.textChannel.send({ embeds: [msgEmbed] });
             };
         };
     };
