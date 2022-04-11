@@ -177,12 +177,12 @@ music.play = async function(client, msg, msgContent) {
 music.skip = function(client, msg, msgContent) {
     const serverQueue = getQueue(msg.guild.id);
 
-    if (serverQueue) {
+    if (serverQueue && serverQueue.playing) {
        if (serverQueue.player) {
            serverQueue.player.stop();
        };
     } else {
-        msg.channel.send("There is no song queue to loop!");
+        msg.channel.send("There is no song playing to skip!");
     };
 };
 
@@ -213,13 +213,13 @@ music.remove = function(client, msg, msgContent) {
 music.stop = function(client, msg, msgContent) {
     const serverQueue = getQueue(msg.guild.id);
 
-    if (serverQueue) {
+    if (serverQueue && serverQueue.playing) {
        if (serverQueue.player) {
            serverQueue.songs = [];
            serverQueue.player.stop();
        };
     } else {
-        msg.channel.send("There is no song queue to loop!");
+        msg.channel.send("I am not playing any songs!");
     };
 };
 
