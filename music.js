@@ -52,7 +52,6 @@ async function joinVc(channel) {
 const videoPlayer = async function(guild, song) {
     const serverQueue = getQueue(guild.id);
     serverQueue.player = createAudioPlayer({behaviors: { noSubscriber: NoSubscriberBehavior.Pause }});
-    console.log("A")
 
     if (!song) {
         if (serverQueue.connection) {
@@ -176,7 +175,15 @@ music.play = async function(client, msg, msgContent) {
 };
 
 music.skip = function(client, msg, msgContent) {
+    const serverQueue = getQueue(msg.guild.id);
 
+    if (serverQueue) {
+       if (serverQueue.player) {
+           serverQueue.player.stop();
+       };
+    } else {
+        msg.channel.send("There is no song queue to loop!");
+    };
 };
 
 music.jump = function(client, msg, msgContent) {
@@ -204,7 +211,16 @@ music.remove = function(client, msg, msgContent) {
 };
 
 music.stop = function(client, msg, msgContent) {
+    const serverQueue = getQueue(msg.guild.id);
 
+    if (serverQueue) {
+       if (serverQueue.player) {
+           serverQueue.songs = [];
+           serverQueue.player.stop();
+       };
+    } else {
+        msg.channel.send("There is no song queue to loop!");
+    };
 };
 
 music.queue = function(client, msg, msgContent) {
