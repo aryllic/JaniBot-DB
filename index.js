@@ -9,18 +9,19 @@ const client = new discord.Client({intents: [
     "DIRECT_MESSAGES"
 ]});
 const commands = require("./commands.js");
+const settings = require("./settings.js");
 
 client.on("ready", function() {
-    console.log("Bot started!");
+    client.guilds.cache.forEach(guild => {
+        settings.new(guild.id);
+    });
 
     client.user.setActivity("-cmds", {
         type: "STREAMING",
         url: "https://www.twitch.tv/discord"
     });
-});
 
-client.on("unhandledRejection", function(error) {
-    console.error("Promise rejection:", error);
+    console.log("The bot is ready!");
 });
 
 /*client.on("presenceUpdate", function(presence) {
@@ -33,24 +34,32 @@ client.on("unhandledRejection", function(error) {
     };
 });*/
 
+client.on("guildCreate", function(guild) {
+    settings.new(guild.id);
+});
+
 client.on("messageCreate", function(msg) {
     if (!msg.author.bot) {
-        if (msg.content.slice(0, process.env.PREFIX.length) == process.env.PREFIX) {
-            let msgContent = msg.content.slice(process.env.PREFIX.length, msg.content.length).split(" ");
+        if (msg.content.slice(0, settings.get(msg.guild.id).prefix.length) == settings.get(msg.guild.id).prefix) {
+            let msgContent = msg.content.slice(settings.get(msg.guild.id).prefix.length, msg.content.length).split(" ");
             let cmd = commands.findCmd(msgContent[0]);
 
             if (cmd) {
                 if (cmd.needsMod) {
-                    if (msg.member.roles.cache.has(process.env.MOD_ROLE_ID)) {
-                        cmd.func(client, msg, msgContent);
+                    if (settings.get(msg.guild.id).modRoleId) {
+                        if (msg.member.roles.cache.has(settings.get(msg.guild.id).modRoleId)) {
+                            cmd.func(client, msg, msgContent);
+                        } else {
+                            msg.channel.send("You do not have permissions to use this command!");
+                        };
                     } else {
-                        msg.reply("You do not have permissions to use this command!");
+                        msg.channel.send("You need to set a mod role to use this command!")
                     };
                 } else {
                     cmd.func(client, msg, msgContent);
                 };
             } else {
-                msg.reply("Sorry! I couldn't find the command you were looking for.");
+                msg.channel.send("Sorry! I couldn't find the command you were looking for.");
             };
         };
     };

@@ -1,5 +1,6 @@
-const { MessageEmbed } = require("discord.js");
+const { MessageEmbed, Permissions } = require("discord.js");
 const music = require("./music.js");
+const settings = require("./settings.js");
 
 const commands = [];
 const fakten = [
@@ -106,6 +107,26 @@ createCmd("stop", "Stops the groove.", true, function(client, msg, msgContent) {
 
 createCmd("q", "Displays all of the songs in the queue.", false, function(client, msg, msgContent) {
     music.queue(client, msg, msgContent);
+});
+
+createCmd("setmodrole", "Sets the moderator role.", false, function(client, msg, msgContent) {
+    if (msg.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR) && msgContent[1]) {
+        const modRole = msg.guild.roles.cache.find(role => role.name.toLowerCase() == msgContent[1].toLowerCase());
+        
+        if (modRole) {
+            settings.setValue(msg.guild.id, "modRoleId", modRole.id);
+            msg.channel.send("I set the moderator role to: " + modRole.name);
+        } else {
+            msg.channel.send("I couldn't find the role you were looking for!");
+        };
+    };
+});
+
+createCmd("setprefix", "Sets the prefix of the bot.", true, function(client, msg, msgContent) {
+    if (msgContent[1]) {
+        settings.setValue(msg.guild.id, "prefix", msgContent[1]);
+        msg.channel.send("I set the prefix to: " + settings.get(msg.guild.id).prefix);
+    };
 });
 
 createCmd("setstream", "Sets the activity of the bot.", true, function(client, msg, msgContent) {
