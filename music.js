@@ -30,6 +30,26 @@ function checkVc(msg) {
     };
 };
 
+async function checkConnection(c, guildId) {
+    c.on(VoiceConnectionStatus.Disconnected, async function () {
+        const serverQueue = getQueue(guildId);
+
+        if (serverQueue && serverQueue.connection) {
+            serverQueue.connection.destroy();
+            serverQueue.connection = null;
+
+            const newConnection = await joinVc(serverQueue.voiceChannel);
+            serverQueue.connection = newConnection;
+
+            if (serverQueue.player && serverQueue.playing) {
+                serverQueue.connection.subscribe(serverQueue.player);
+            };
+
+            checkConnection(newConnection, guildId);
+        };
+    });
+};
+
 function getQueue(guildId) {
     return queue.get(guildId);
 };
@@ -87,7 +107,7 @@ const videoPlayer = async function(guild, song) {
         if (serverQueue.looping == "Queue") {
             serverQueue.songs.push(serverQueue.songs[0]);
             serverQueue.songs.shift();
-        } else if (serverQueue.looping == false) {
+        } else if (!serverQueue.looping) {
             serverQueue.songs.shift();
         };
 
@@ -117,7 +137,7 @@ music.play = async function(client, msg, msgContent) {
 
             let slicedContent = msgContent;
             slicedContent.shift();
-            let joinedContent = slicedContent.join(" ");
+            const joinedContent = slicedContent.join(" ");
             const video = await videoFinder(joinedContent);
 
             if (video){
@@ -126,7 +146,7 @@ music.play = async function(client, msg, msgContent) {
                     url: video.url
                 };
             } else {
-                msg.channel.send("I couldn't find the video you were looking for!");
+                msg.channel.send("I couldn't find the song you were looking for!");
             };
         };
 
@@ -149,11 +169,14 @@ music.play = async function(client, msg, msgContent) {
             try {
                 const connection = await joinVc(memberVc);                
                 serverQueue.connection = connection;
+
+                checkConnection(connection, msg.guild.id);
+
                 serverQueue.songs.push(song);
                 videoPlayer(msg.guild, serverQueue.songs[0]);
             } catch (err) {
                 //queue.delete(msg.guild.id);
-                msg.channel.send("There was an error connecting!");
+                serverQueue.textChannel.send("There was an error connecting!");
                 console.log(err);
             };
         } else {
@@ -187,7 +210,54 @@ music.skip = function(client, msg, msgContent) {
 };
 
 music.jump = function(client, msg, msgContent) {
+    const serverQueue = getQueue(msg.guild.id);
 
+    if (serverQueue) {
+        let slicedContent = msgContent;
+        slicedContent.shift();
+        const joinedContent = slicedContent.join(" ");
+        
+        let foundSong = null;
+
+        serverQueue.songs.forEach(song => {
+            if (song.title.toLowerCase().match(joinedContent.toLowerCase())) {
+                foundSong = song;
+            };
+        });
+        
+        if (!foundSong) {
+            serverQueue.textChannel.send("I couldn't find the song you were looking for!");
+        } else {
+            while (true) {
+                if (serverQueue.songs[1] && serverQueue.songs[1].title != foundSong.title) {
+                    serverQueue.songs.push(serverQueue.songs[0]);
+                    serverQueue.songs.shift();
+                } else {
+                    break;
+                };
+            };
+
+            if (serverQueue.looping != "Queue" || serverQueue.looping != "Song") {
+                serverQueue.songs.push(serverQueue.songs[0]);
+            };
+
+            if (serverQueue.playing && serverQueue.player) {
+                serverQueue.player.stop();
+            } else {
+                serverQueue.songs.shift();
+                videoPlayer(msg.guild, serverQueue.songs[0]);
+            };
+
+            const msgEmbed = new MessageEmbed()
+                    .setColor("#4ec200")
+                    .setTitle("Jumping to song:")
+                    .setDescription(foundSong.title);
+
+            serverQueue.textChannel.send({ embeds: [msgEmbed] });
+        };
+    } else {
+        msg.channel.send("There is no song queue so I can switch songs!");
+    };
 };
 
 music.loop = function(client, msg, msgContent) {
@@ -197,6 +267,9 @@ music.loop = function(client, msg, msgContent) {
         if (!serverQueue.looping) {
             serverQueue.looping = "Queue";
             serverQueue.textChannel.send("Now looping the queue!");
+        } else if (serverQueue.looping == "Queue") {
+            serverQueue.looping = "Song";
+            serverQueue.textChannel.send("Now looping the current song!");
         } else {
             serverQueue.looping = false;
             serverQueue.textChannel.send("Looping is now disabled!");
@@ -207,7 +280,7 @@ music.loop = function(client, msg, msgContent) {
 };
 
 music.remove = function(client, msg, msgContent) {
-
+    
 };
 
 music.stop = function(client, msg, msgContent) {

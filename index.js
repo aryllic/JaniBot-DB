@@ -41,7 +41,11 @@ client.on("messageCreate", function(msg) {
 
             if (cmd) {
                 if (cmd.needsMod) {
-
+                    if (msg.member.roles.cache.has(process.env.MOD_ROLE_ID)) {
+                        cmd.func(client, msg, msgContent);
+                    } else {
+                        msg.reply("You do not have permissions to use this command!");
+                    };
                 } else {
                     cmd.func(client, msg, msgContent);
                 };
