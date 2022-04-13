@@ -229,7 +229,7 @@ music.jump = function(client, msg, msgContent) {
             serverQueue.textChannel.send("I couldn't find the song you were looking for!");
         } else {
             while (true) {
-                if (serverQueue.songs[1] && serverQueue.songs[1].title != foundSong.title) {
+                if (serverQueue.songs[1] && serverQueue.songs.indexOf(foundSong) == 1) {
                     serverQueue.songs.push(serverQueue.songs[0]);
                     serverQueue.songs.shift();
                 } else {
@@ -280,7 +280,47 @@ music.loop = function(client, msg, msgContent) {
 };
 
 music.remove = function(client, msg, msgContent) {
-    
+    const serverQueue = getQueue(msg.guild.id);
+
+    if (serverQueue) {
+        let slicedContent = msgContent;
+        slicedContent.shift();
+        const joinedContent = slicedContent.join(" ");
+        
+        let foundSong = null;
+
+        serverQueue.songs.forEach(song => {
+            if (song.title.toLowerCase().match(joinedContent.toLowerCase())) {
+                foundSong = song;
+            };
+        });
+        
+        if (!foundSong) {
+            serverQueue.textChannel.send("I couldn't find the song you were looking for!");
+        } else {
+            if (serverQueue.player && serverQueue.playing) {
+                if (serverQueue.songs.indexOf(foundSong) == 0) {
+                    if (serverQueue.looping == "Queue" || serverQueue.looping == "Song") {
+                        serverQueue.songs.shift();
+                        serverQueue.player.stop();
+                    } else {
+                        serverQueue.player.stop();
+                    };
+                } else {
+                    serverQueue.songs.splice(serverQueue.songs.indexOf(foundSong), 1);
+                };
+
+                const msgEmbed = new MessageEmbed()
+                    .setColor("#4ec200")
+                    .setTitle("Removed:")
+                    .setDescription(foundSong.title);
+
+                serverQueue.textChannel.send({ embeds: [msgEmbed] });
+            };
+        };
+    } else {
+        msg.channel.send("There is no song queue so I can remove songs!");
+    };
 };
 
 music.stop = function(client, msg, msgContent) {

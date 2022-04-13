@@ -98,7 +98,9 @@ createCmd("loop", "Loops the queue.", true, function(client, msg, msgContent) {
 });
 
 createCmd("r", "Removes the song you're looking for. (Doesn't work yet!)", true, function(client, msg, msgContent) {
-    music.remove(client, msg, msgContent);
+    if (msgContent[1]) {
+        music.remove(client, msg, msgContent);
+    };
 });
 
 createCmd("stop", "Stops the groove.", true, function(client, msg, msgContent) {
