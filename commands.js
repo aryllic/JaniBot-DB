@@ -97,7 +97,7 @@ createCmd("loop", "Loops the queue.", true, function(client, msg, msgContent) {
     music.loop(client, msg, msgContent);
 });
 
-createCmd("r", "Removes the song you're looking for. (Doesn't work yet!)", true, function(client, msg, msgContent) {
+createCmd("r", "Removes the song you're looking for.", true, function(client, msg, msgContent) {
     if (msgContent[1]) {
         music.remove(client, msg, msgContent);
     };
