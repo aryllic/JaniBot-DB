@@ -28,11 +28,12 @@ const fakten = [
     "Du hast unglaublich viel Glück, diesen Fakt gefunden zu haben."
 ];
 
-function createCmd(name, desc, needsMod, func) {
+function createCmd(name, desc, aliases, neededRoles, func) {
     commands[commands.length + 2] = {
         name: name,
         desc: desc,
-        needsMod: needsMod,
+        aliases: aliases,
+        neededRoles: neededRoles,
         func: func
     };
 };
@@ -43,13 +44,21 @@ commands.findCmd = function(name) {
     commands.forEach(cmd => {
         if (cmd.name && cmd.name == name) {
             foundCmd = cmd;
+        } else {
+            if (cmd.aliases) {
+                cmd.aliases.forEach(alias => {
+                    if (alias == name) {
+                        foundCmd = cmd;
+                    };
+                });
+            }
         };
     });
 
     return foundCmd;
 };
 
-createCmd("cmds", "Returns all the commands this bot has available.", false, function(client, msg, msgContent) {
+createCmd("cmds", "Returns all the commands this bot has available.", ["help"], null, function(client, msg, msgContent) {
     let msgDesc = "";
 
     commands.forEach(cmd => {
@@ -64,7 +73,7 @@ createCmd("cmds", "Returns all the commands this bot has available.", false, fun
     msg.channel.send({ embeds: [msgEmbed] });
 });
 
-createCmd("repeat", "Repeats everything you say.", false, function(client, msg, msgContent) {
+createCmd("repeat", "Repeats everything you say.", ["rpt"], null, function(client, msg, msgContent) {
     if (msgContent[1]) {
         let joinedContent = msgContent.join(" ");
         let replyString = joinedContent.slice(7, joinedContent.length);
@@ -73,45 +82,62 @@ createCmd("repeat", "Repeats everything you say.", false, function(client, msg, 
     };
 });
 
-createCmd("fakt", "Tells you a fact.", false, function(client, msg, msgContent) {
+createCmd("fakt", "Tells you a fact.", [], null, function(client, msg, msgContent) {
     msg.channel.send(fakten[Math.floor(Math.random() * fakten.length)]);
 });
 
-createCmd("p", "Plays the song you're looking for.", true, function(client, msg, msgContent) {
+createCmd("play", "Plays the song you're looking for.", ["p"], ["dj"], function(client, msg, msgContent) {
     if (msgContent[1]) {
         music.play(client, msg, msgContent);
     };
 });
 
-createCmd("skip", "Skips the current song.", true, function(client, msg, msgContent) {
+createCmd("skip", "Skips the current song.", ["sk"], ["dj"], function(client, msg, msgContent) {
     music.skip(client, msg, msgContent);
 });
 
-createCmd("jump", "Jumps to the song you're looking for.", true, function(client, msg, msgContent) {
+createCmd("jump", "Jumps to the song you're looking for.", ["j"], ["dj"], function(client, msg, msgContent) {
     if (msgContent[1]) {
         music.jump(client, msg, msgContent);
     };
 });
 
-createCmd("loop", "Loops the queue.", true, function(client, msg, msgContent) {
+createCmd("shuffle", "Shuffles the queue.", ["sh"], ["dj"], function(client, msg, msgContent) {
+    music.shuffle(client, msg, msgContent);
+});
+
+createCmd("loop", "Loops the queue.", ["l"], ["dj"], function(client, msg, msgContent) {
     music.loop(client, msg, msgContent);
 });
 
-createCmd("r", "Removes the song you're looking for.", true, function(client, msg, msgContent) {
+createCmd("remove", "Removes the song you're looking for.", ["r"], ["dj"], function(client, msg, msgContent) {
     if (msgContent[1]) {
         music.remove(client, msg, msgContent);
     };
 });
 
-createCmd("stop", "Stops the groove.", true, function(client, msg, msgContent) {
+createCmd("stop", "Stops the groove.", ["st"], ["dj"], function(client, msg, msgContent) {
     music.stop(client, msg, msgContent);
 });
 
-createCmd("q", "Displays all of the songs in the queue.", false, function(client, msg, msgContent) {
+createCmd("queue", "Displays all of the songs in the queue.", ["q"], null, function(client, msg, msgContent) {
     music.queue(client, msg, msgContent);
 });
 
-createCmd("setmodrole", "Sets the moderator role.", false, function(client, msg, msgContent) {
+createCmd("setadminrole", "Sets the administrator role.", ["sar"], null, function(client, msg, msgContent) {
+    if (msg.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR) && msgContent[1]) {
+        const adminRole = msg.guild.roles.cache.find(role => role.name.toLowerCase() == msgContent[1].toLowerCase());
+        
+        if (adminRole) {
+            settings.setValue(msg.guild.id, "adminRoleId", adminRole.id);
+            msg.channel.send("I set the admin role to: " + adminRole.name);
+        } else {
+            msg.channel.send("I couldn't find the role you were looking for!");
+        };
+    };
+});
+
+createCmd("setmodrole", "Sets the moderator role.", ["smr"], null, function(client, msg, msgContent) {
     if (msg.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR) && msgContent[1]) {
         const modRole = msg.guild.roles.cache.find(role => role.name.toLowerCase() == msgContent[1].toLowerCase());
         
@@ -124,14 +150,27 @@ createCmd("setmodrole", "Sets the moderator role.", false, function(client, msg,
     };
 });
 
-createCmd("setprefix", "Sets the prefix of the bot.", true, function(client, msg, msgContent) {
+createCmd("setdjrole", "Sets the dj role.", ["sdjr"], null, function(client, msg, msgContent) {
+    if (msg.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR) && msgContent[1]) {
+        const djRole = msg.guild.roles.cache.find(role => role.name.toLowerCase() == msgContent[1].toLowerCase());
+        
+        if (djRole) {
+            settings.setValue(msg.guild.id, "djRoleId", djRole.id);
+            msg.channel.send("I set the dj role to: " + djRole.name);
+        } else {
+            msg.channel.send("I couldn't find the role you were looking for!");
+        };
+    };
+});
+
+createCmd("setprefix", "Sets the prefix of the bot.", ["sp"], ["admin"], function(client, msg, msgContent) {
     if (msgContent[1]) {
         settings.setValue(msg.guild.id, "prefix", msgContent[1]);
         msg.channel.send("I set the prefix to: " + settings.get(msg.guild.id).prefix);
     };
 });
 
-createCmd("setstream", "Sets the activity of the bot.", true, function(client, msg, msgContent) {
+createCmd("setstream", "Sets the activity of the bot.", [], ["admin"], function(client, msg, msgContent) {
     if (msgContent[1]) {
         let joinedContent = msgContent.join(" ");
         let setString = joinedContent.slice(10, joinedContent.length);

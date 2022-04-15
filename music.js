@@ -279,6 +279,40 @@ music.loop = function(client, msg, msgContent) {
     };
 };
 
+music.shuffle = function(client, msg, msgContent) {
+    const serverQueue = getQueue(msg.guild.id);
+
+    if (serverQueue && serverQueue.playing && serverQueue.songs.length > 0) {
+        let currentIndex = serverQueue.songs.length, randomIndex;
+        let playingSong = serverQueue.songs[0]
+
+        while (currentIndex != 0) {
+          randomIndex = Math.floor(Math.random() * currentIndex);
+          currentIndex--;
+
+          [serverQueue.songs[currentIndex], serverQueue.songs[randomIndex]] = [
+            serverQueue.songs[randomIndex], serverQueue.songs[currentIndex]];
+        };
+
+        serverQueue.songs.forEach(song => {
+            if (song.title.toLowerCase().match(playingSong.title.toLowerCase())) {
+                playingSong = song;
+            };
+        });
+
+        const playingSongIndex = serverQueue.songs.indexOf(playingSong);
+
+        [serverQueue.songs[playingSongIndex], serverQueue.songs[0]] = [
+            serverQueue.songs[0], serverQueue.songs[playingSongIndex]];
+
+        serverQueue.textChannel.send("Shuffled the song queue!");
+
+        serverQueue.player.stop();
+    } else {
+        msg.channel.send("There is no song queue so I can shuffle songs!");
+    };
+};
+
 music.remove = function(client, msg, msgContent) {
     const serverQueue = getQueue(msg.guild.id);
 

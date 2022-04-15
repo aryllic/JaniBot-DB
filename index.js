@@ -45,15 +45,33 @@ client.on("messageCreate", function(msg) {
             let cmd = commands.findCmd(msgContent[0]);
 
             if (cmd) {
-                if (cmd.needsMod) {
-                    if (settings.get(msg.guild.id).modRoleId) {
-                        if (msg.member.roles.cache.has(settings.get(msg.guild.id).modRoleId)) {
-                            cmd.func(client, msg, msgContent);
+                if (cmd.neededRoles) {
+                    let neededStrings = [];
+
+                    cmd.neededRoles.forEach(roleName => {
+                        neededStrings.push(roleName + "RoleId");
+                    });
+
+                    neededStrings.forEach(string => {
+                        if (settings.get(msg.guild.id)[string]) {
+                            if (!msg.member.roles.cache.has(settings.get(msg.guild.id)[string])) {
+                                if (neededStrings) {
+                                    msg.channel.send("You do not have the required role(s) to use this command!");
+                                };
+                                
+                                neededStrings = null;                                
+                            };
                         } else {
-                            msg.channel.send("You do not have permissions to use this command!");
+                            if (neededStrings) {
+                                msg.channel.send("You need to set a(n) " + cmd.neededRoles[neededStrings.indexOf(string)] + " role to use this command!");
+                            };
+
+                            neededStrings = null;
                         };
-                    } else {
-                        msg.channel.send("You need to set a mod role to use this command!")
+                    });
+
+                    if (neededStrings) {
+                        cmd.func(client, msg, msgContent);
                     };
                 } else {
                     cmd.func(client, msg, msgContent);

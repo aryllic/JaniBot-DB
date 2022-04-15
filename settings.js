@@ -4,7 +4,9 @@ const servers = new Map();
 settings.new = function(guildId) {
     const serverConstructor = {
         prefix: "-",
-        modRoleId: null
+        djRoleId: null,
+        modRoleId: null,
+        adminRoleId: null
     };
 
     servers.set(guildId, serverConstructor);
