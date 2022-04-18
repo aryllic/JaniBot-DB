@@ -3,11 +3,11 @@ const servers = new Map();
 
 settings.new = function(guildId) {
     const serverConstructor = {
-        prefix: "+",
+        prefix: "-",
         djRoleId: null,
         modRoleId: null,
         adminRoleId: null,
-        indienChannel: "",
+        indienChannel: null,
         indienUsers: []
     };
 
