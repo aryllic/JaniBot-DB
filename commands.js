@@ -1,3 +1,4 @@
+const { VoiceConnection } = require("@discordjs/voice");
 const { MessageEmbed, Permissions } = require("discord.js");
 const music = require("./music.js");
 const settings = require("./settings.js");
@@ -62,7 +63,7 @@ createCmd("cmds", "Returns all the commands this bot has available.", ["help"], 
     let msgDesc = "";
 
     commands.forEach(cmd => {
-        msgDesc = msgDesc + cmd.name + ": " + cmd.desc + "\n\n"
+        msgDesc = msgDesc + "**" + cmd.name + "**: " + cmd.desc + "\n\n"
     });
 
     const msgEmbed = new MessageEmbed()
@@ -122,6 +123,45 @@ createCmd("stop", "Stops the groove.", ["st"], ["dj"], function(client, msg, msg
 
 createCmd("queue", "Displays all of the songs in the queue.", ["q"], null, function(client, msg, msgContent) {
     music.queue(client, msg, msgContent);
+});
+
+createCmd("indien", "Sends the mentioned user to india.", ["i"], ["admin"], function(client, msg, msgContent) {
+    if (msg.mentions.users.first()) {
+        if (settings.get(msg.guild.id).indienChannel) {
+            const member = msg.guild.members.cache.get(msg.mentions.users.first().id);
+            const indienUsersArray = settings.get(msg.guild.id).indienUsers;
+
+            if (indienUsersArray.length > 0) {
+                indienUsersArray.forEach(id => {
+                    if (id != msg.mentions.users.first().id) {
+                        indienUsersArray.push(msg.mentions.users.first().id);
+                        settings.setValue(msg.guild.id, "indienUsers", indienUsersArray);
+                    };
+                });
+            } else {
+                indienUsersArray.push(msg.mentions.users.first().id);
+                settings.setValue(msg.guild.id, "indienUsers", indienUsersArray);
+            };
+
+            if (member && member.voice.channel) {
+                member.voice.setChannel(settings.get(msg.guild.id).indienChannel);
+            };
+        } else {
+            msg.channel.send("You need to set an india channel to use this command!");
+        };
+    } else {
+        settings.setValue(msg.guild.id, "indienUsers", []);
+    };
+});
+
+createCmd("setindien", "Set an india channel.", ["si"], ["admin"], function(client, msg, msgContent) {
+    if (msgContent[1]) {
+        const channel = msg.guild.channels.cache.get(msgContent[1]);
+
+        if (channel && channel.type == "GUILD_VOICE") {
+            settings.setValue(msg.guild.id, "indienChannel", channel.id);
+        };
+    };
 });
 
 createCmd("setadminrole", "Sets the administrator role.", ["sar"], null, function(client, msg, msgContent) {

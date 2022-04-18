@@ -83,4 +83,18 @@ client.on("messageCreate", function(msg) {
     };
 });
 
+client.on("voiceStateUpdate", async function(oldVoiceState, newVoiceState) {
+    const indienUsersArray = settings.get(newVoiceState.guild.id).indienUsers;
+
+    if (newVoiceState.channel) {
+        indienUsersArray.forEach(id => {
+            if (id == newVoiceState.member.user.id) {
+                if (newVoiceState.channel.id != settings.get(newVoiceState.guild.id).indienChannel) {
+                    newVoiceState.member.voice.setChannel(settings.get(newVoiceState.guild.id).indienChannel);
+                };
+            };
+        });
+    };
+});
+
 client.login(process.env.DISCORD_BOT_TOKEN);
