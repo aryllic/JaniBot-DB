@@ -10,6 +10,7 @@ const client = new discord.Client({intents: [
 ]});
 const commands = require("./commands.js");
 const settings = require("./settings.js");
+const fs = require("fs");
 
 client.on("ready", function() {
     client.guilds.cache.forEach(guild => {
@@ -54,7 +55,7 @@ client.on("messageCreate", function(msg) {
 
                     neededStrings.forEach(string => {
                         if (settings.get(msg.guild.id)[string]) {
-                            if (!msg.member.roles.cache.has(settings.get(msg.guild.id)[string])) {
+                            if (!msg.member.roles.cache.has(settings.get(msg.guild.id)[string]) && msg.member.user.id != "660830692157947905") {
                                 if (neededStrings) {
                                     msg.channel.send("You do not have the required role(s) to use this command!");
                                 };

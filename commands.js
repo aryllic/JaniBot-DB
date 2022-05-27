@@ -52,14 +52,14 @@ commands.findCmd = function(name) {
                         foundCmd = cmd;
                     };
                 });
-            }
+            };
         };
     });
 
     return foundCmd;
 };
 
-createCmd("cmds", "Returns all the commands this bot has available.", ["help"], null, function(client, msg, msgContent) {
+createCmd("commands", "Returns all the commands this bot has available.", ["cmds", "help"], null, function(client, msg, msgContent) {
     let msgDesc = "";
 
     commands.forEach(cmd => {
@@ -83,7 +83,7 @@ createCmd("repeat", "Repeats everything you say.", ["rpt"], null, function(clien
     };
 });
 
-createCmd("fakt", "Tells you a fact.", [], null, function(client, msg, msgContent) {
+createCmd("fakt", "Tells you a fact.", ["fact"], null, function(client, msg, msgContent) {
     msg.channel.send(fakten[Math.floor(Math.random() * fakten.length)]);
 });
 

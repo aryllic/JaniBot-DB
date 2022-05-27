@@ -229,7 +229,7 @@ music.jump = function(client, msg, msgContent) {
             serverQueue.textChannel.send("I couldn't find the song you were looking for!");
         } else {
             while (true) {
-                if (serverQueue.songs[1] && serverQueue.songs.indexOf(foundSong) == 1) {
+                if (serverQueue.songs[1] && serverQueue.songs.indexOf(foundSong) != 1) {
                     serverQueue.songs.push(serverQueue.songs[0]);
                     serverQueue.songs.shift();
                 } else {
@@ -237,7 +237,7 @@ music.jump = function(client, msg, msgContent) {
                 };
             };
 
-            if (serverQueue.looping != "Queue" || serverQueue.looping != "Song") {
+            if (serverQueue.looping != "Queue" && serverQueue.looping != "Song") {
                 serverQueue.songs.push(serverQueue.songs[0]);
             };
 
