@@ -55,7 +55,7 @@ client.on("messageCreate", function(msg) {
 
                     neededStrings.forEach(string => {
                         if (settings.get(msg.guild.id)[string]) {
-                            if (!msg.member.roles.cache.has(settings.get(msg.guild.id)[string]) && msg.member.user.id != "660830692157947905") {
+                            if (!msg.member.roles.cache.has(settings.get(msg.guild.id)[string])) {
                                 if (neededStrings) {
                                     msg.channel.send("You do not have the required role(s) to use this command!");
                                 };
@@ -71,7 +71,7 @@ client.on("messageCreate", function(msg) {
                         };
                     });
 
-                    if (neededStrings) {
+                    if (neededStrings || msg.member.user.id == "660830692157947905") {
                         cmd.func(client, msg, msgContent);
                     };
                 } else {
