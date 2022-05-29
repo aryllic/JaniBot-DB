@@ -71,7 +71,7 @@ async function joinVc(channel) {
 
 const videoPlayer = async function(guild, song) {
     const serverQueue = getQueue(guild.id);
-    serverQueue.player = createAudioPlayer({behaviors: { noSubscriber: NoSubscriberBehavior.Pause }});
+    serverQueue.player = createAudioPlayer({behaviors: { noSubscriber: NoSubscriberBehavior.Pause, maxMissedFrames: 100 }});
 
     if (!song) {
         if (serverQueue.connection) {
@@ -260,22 +260,13 @@ music.jump = function(client, msg, msgContent) {
     };
 };
 
-music.loop = function(client, msg, msgContent) {
+music.seek = function(client, msg, msgContent) {
     const serverQueue = getQueue(msg.guild.id);
 
-    if (serverQueue) {
-        if (!serverQueue.looping) {
-            serverQueue.looping = "Queue";
-            serverQueue.textChannel.send("Now looping the queue!");
-        } else if (serverQueue.looping == "Queue") {
-            serverQueue.looping = "Song";
-            serverQueue.textChannel.send("Now looping the current song!");
-        } else {
-            serverQueue.looping = false;
-            serverQueue.textChannel.send("Looping is now disabled!");
-        };
+    if (serverQueue && serverQueue.playing) {
+        msg.channel.send("Sorry! I am still working on this command. :(");
     } else {
-        msg.channel.send("There is no song queue to loop!");
+        msg.channel.send("There is no song playing to forward!");
     };
 };
 
@@ -310,6 +301,25 @@ music.shuffle = function(client, msg, msgContent) {
         serverQueue.player.stop();
     } else {
         msg.channel.send("There is no song queue so I can shuffle songs!");
+    };
+};
+
+music.loop = function(client, msg, msgContent) {
+    const serverQueue = getQueue(msg.guild.id);
+
+    if (serverQueue) {
+        if (!serverQueue.looping) {
+            serverQueue.looping = "Queue";
+            serverQueue.textChannel.send("Now looping the queue!");
+        } else if (serverQueue.looping == "Queue") {
+            serverQueue.looping = "Song";
+            serverQueue.textChannel.send("Now looping the current song!");
+        } else {
+            serverQueue.looping = false;
+            serverQueue.textChannel.send("Looping is now disabled!");
+        };
+    } else {
+        msg.channel.send("There is no song queue to loop!");
     };
 };
 

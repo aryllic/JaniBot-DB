@@ -1,5 +1,6 @@
 const { VoiceConnection } = require("@discordjs/voice");
 const { MessageEmbed, Permissions } = require("discord.js");
+const { forward } = require("./music.js");
 const music = require("./music.js");
 const settings = require("./settings.js");
 
@@ -100,6 +101,12 @@ createCmd("skip", "Skips the current song.", ["sk"], ["dj"], function(client, ms
 createCmd("jump", "Jumps to the song you're looking for.", ["j"], ["dj"], function(client, msg, msgContent) {
     if (msgContent[1]) {
         music.jump(client, msg, msgContent);
+    };
+});
+
+createCmd("seek", "Seeks the position in a song you're looking for.", ["se"], ["dj"], function(client, msg, msgContent) {
+    if (msgContent[1]) {
+        music.seek(client, msg, msgContent);
     };
 });
 
