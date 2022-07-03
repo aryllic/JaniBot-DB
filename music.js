@@ -71,7 +71,7 @@ async function joinVc(channel) {
 
 const videoPlayer = async function(guild, song) {
     const serverQueue = getQueue(guild.id);
-    serverQueue.player = createAudioPlayer({behaviors: { noSubscriber: NoSubscriberBehavior.Pause, maxMissedFrames: 100 }});
+    serverQueue.player = createAudioPlayer({behaviors: { noSubscriber: NoSubscriberBehavior.Pause, maxMissedFrames: 10000 }});
 
     if (!song) {
         if (serverQueue.connection) {

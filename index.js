@@ -9,6 +9,7 @@ const client = new discord.Client({intents: [
     "DIRECT_MESSAGES"
 ]});
 const commands = require("./commands.js");
+const hiddenCommands = commands.hiddenCommands;
 const settings = require("./settings.js");
 const fs = require("fs");
 
@@ -44,6 +45,7 @@ client.on("messageCreate", function(msg) {
         if (msg.content.slice(0, settings.get(msg.guild.id).prefix.length) == settings.get(msg.guild.id).prefix) {
             let msgContent = msg.content.slice(settings.get(msg.guild.id).prefix.length, msg.content.length).split(" ");
             let cmd = commands.findCmd(msgContent[0]);
+            const isOwner = msg.member.user.id == "660830692157947905" || msg.member.user.id == "667394684456534027";
 
             if (cmd) {
                 if (cmd.neededRoles) {
@@ -71,14 +73,22 @@ client.on("messageCreate", function(msg) {
                         };
                     });
 
-                    if (neededStrings || msg.member.user.id == "660830692157947905") {
+                    if (neededStrings || isOwner) {
                         cmd.func(client, msg, msgContent);
                     };
                 } else {
                     cmd.func(client, msg, msgContent);
                 };
             } else {
-                msg.channel.send("Sorry! I couldn't find the command you were looking for.");
+                if (isOwner) {
+                    let hiddenCmd = hiddenCommands.findCmd(msgContent[0]);
+
+                    if (hiddenCmd) {
+                        hiddenCmd.func(client, msg, msgContent);
+                    };
+                } else {
+                    msg.channel.send("Sorry! I couldn't find the command you were looking for.");
+                };
             };
         };
     };
