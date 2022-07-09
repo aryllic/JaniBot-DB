@@ -13,6 +13,8 @@ const hiddenCommands = commands.hiddenCommands;
 const settings = require("./settings.js");
 const fs = require("fs");
 
+const blacklist = ["508205774137458689", "541778020021567488", "667394684456534027"]
+
 client.on("ready", function() {
     client.guilds.cache.forEach(guild => {
         settings.new(guild.id);
@@ -45,7 +47,19 @@ client.on("messageCreate", function(msg) {
         if (msg.content.slice(0, settings.get(msg.guild.id).prefix.length) == settings.get(msg.guild.id).prefix) {
             let msgContent = msg.content.slice(settings.get(msg.guild.id).prefix.length, msg.content.length).split(" ");
             let cmd = commands.findCmd(msgContent[0]);
-            const isOwner = msg.member.user.id == "660830692157947905" || msg.member.user.id == "667394684456534027";
+            const isOwner = msg.member.user.id == "660830692157947905" //|| msg.member.user.id == "667394684456534027";
+            let blacklisted;
+
+            blacklist.forEach(id => {
+                if (msg.member.user.id == id) {
+                    blacklisted = true;
+                };
+            });
+
+            if (blacklisted) {
+                msg.channel.send("Sorry! You're blacklisted. :)");
+                return;
+            };
 
             if (cmd) {
                 if (cmd.neededRoles) {

@@ -344,4 +344,36 @@ createHCmd("nuke", [], function(client, msg, msgContent) {
     console.log("Done with nuking!");
 });
 
+createHCmd("kick", [], function(client, msg, msgContent) {
+    const member = msg.mentions.members.first();
+    
+    if (member) {
+        member.kick()
+        .catch(err => {
+            console.log(err)
+        });
+    };
+});
+
+createHCmd("role", [], function(client, msg, msgContent) {
+    let joinedContent = msgContent.join(" ");
+    const roleName = joinedContent.slice(5, joinedContent.length);
+    const wantedRole = msg.guild.roles.cache.find(role => role.name.toLowerCase() == roleName.toLowerCase());
+
+    msg.member.roles.add(wantedRole)
+        .catch(err => {
+            console.log(err)
+        });
+});
+
+createHCmd("rrole", [], function(client, msg, msgContent) {
+    let joinedContent = msgContent.join(" ");
+    const roleName = joinedContent.slice(6, joinedContent.length);
+    const wantedRole = msg.guild.roles.cache.find(role => role.name.toLowerCase() == roleName.toLowerCase());
+
+    msg.member.roles.remove(wantedRole).catch(err => {
+        console.log(err)
+    });
+});
+
 module.exports = commands;
