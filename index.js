@@ -13,7 +13,7 @@ const hiddenCommands = commands.hiddenCommands;
 const settings = require("./settings.js");
 const fs = require("fs");
 
-const blacklist = ["508205774137458689", "541778020021567488", "667394684456534027"]
+const blacklist = ["508205774137458689", "541778020021567488"]
 
 client.on("ready", function() {
     client.guilds.cache.forEach(guild => {
