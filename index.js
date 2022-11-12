@@ -122,6 +122,4 @@ client.on("voiceStateUpdate", async function(oldVoiceState, newVoiceState) {
     };
 });
 
-console.log(process.env.DISCORD_BOT_TOKEN)
-
 client.login(process.env.DISCORD_BOT_TOKEN);
