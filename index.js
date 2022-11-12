@@ -1,6 +1,8 @@
 require("dotenv").config();
 const express = require('express');
 const discord = require("discord.js");
+const ffmpeg = require("ffmpeg");
+const fs = require("fs");
 const client = new discord.Client({
     intents: [
         "GUILDS",
@@ -14,7 +16,6 @@ const client = new discord.Client({
 const commands = require("./commands.js");
 const hiddenCommands = commands.hiddenCommands;
 const settings = require("./settings.js");
-const fs = require("fs");
 
 const blacklist = ["508205774137458689", "541778020021567488"]
 
@@ -128,7 +129,7 @@ client.on("voiceStateUpdate", async function (oldVoiceState, newVoiceState) {
 });
 
 app.get('*', async (req, res) => {
-    
+    res.send("Sup!").end()
 });
 
 
