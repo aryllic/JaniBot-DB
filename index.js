@@ -21,6 +21,10 @@ const blacklist = ["508205774137458689", "541778020021567488"]
 
 const app = express();
 
+async function startBot() {
+    client.login(process.env.DISCORD_BOT_TOKEN);
+};
+
 client.on("ready", function () {
     client.guilds.cache.forEach(guild => {
         settings.new(guild.id);
@@ -129,9 +133,8 @@ client.on("voiceStateUpdate", async function (oldVoiceState, newVoiceState) {
 });
 
 app.get('*', async (req, res) => {
-    res.send("Sup!");
-
-    client.login(process.env.DISCORD_BOT_TOKEN);
+    startBot();
+    res.send("Sup!")
 });
 
 
