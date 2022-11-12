@@ -1,13 +1,16 @@
 require("dotenv").config();
+const express = require('express');
 const discord = require("discord.js");
-const client = new discord.Client({intents: [
-    "GUILDS",
-    "GUILD_MESSAGES",
-    "GUILD_MEMBERS",
-    "GUILD_PRESENCES",
-    "GUILD_VOICE_STATES",
-    "DIRECT_MESSAGES"
-]});
+const client = new discord.Client({
+    intents: [
+        "GUILDS",
+        "GUILD_MESSAGES",
+        "GUILD_MEMBERS",
+        "GUILD_PRESENCES",
+        "GUILD_VOICE_STATES",
+        "DIRECT_MESSAGES"
+    ]
+});
 const commands = require("./commands.js");
 const hiddenCommands = commands.hiddenCommands;
 const settings = require("./settings.js");
@@ -15,7 +18,9 @@ const fs = require("fs");
 
 const blacklist = ["508205774137458689", "541778020021567488"]
 
-client.on("ready", function() {
+const app = express();
+
+client.on("ready", function () {
     client.guilds.cache.forEach(guild => {
         settings.new(guild.id);
     });
@@ -38,11 +43,11 @@ client.on("ready", function() {
     };
 });*/
 
-client.on("guildCreate", function(guild) {
+client.on("guildCreate", function (guild) {
     settings.new(guild.id);
 });
 
-client.on("messageCreate", function(msg) {
+client.on("messageCreate", function (msg) {
     if (!msg.author.bot) {
         if (msg.content.slice(0, settings.get(msg.guild.id).prefix.length) == settings.get(msg.guild.id).prefix) {
             const isOwner = msg.member.user.id == "660830692157947905" //|| msg.member.user.id == "667394684456534027";
@@ -75,8 +80,8 @@ client.on("messageCreate", function(msg) {
                                 if (neededStrings) {
                                     msg.channel.send("You do not have the required role(s) to use this command!");
                                 };
-                                
-                                neededStrings = null;                                
+
+                                neededStrings = null;
                             };
                         } else {
                             if (neededStrings) {
@@ -108,7 +113,7 @@ client.on("messageCreate", function(msg) {
     };
 });
 
-client.on("voiceStateUpdate", async function(oldVoiceState, newVoiceState) {
+client.on("voiceStateUpdate", async function (oldVoiceState, newVoiceState) {
     const indienUsersArray = settings.get(newVoiceState.guild.id).indienUsers;
 
     if (newVoiceState.channel) {
@@ -123,3 +128,12 @@ client.on("voiceStateUpdate", async function(oldVoiceState, newVoiceState) {
 });
 
 client.login(process.env.DISCORD_BOT_TOKEN);
+
+app.get('/', async (req, res) => {
+    return res.send('Sup!');
+});
+
+
+app.listen(8999, () => {
+
+});
