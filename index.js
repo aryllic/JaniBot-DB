@@ -133,7 +133,8 @@ client.on("voiceStateUpdate", async function (oldVoiceState, newVoiceState) {
 });
 
 app.get('*', async (req, res) => {
-    res.send(startBot());
+    startBot();
+    res.send("YOOO!");
 });
 
 
