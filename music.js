@@ -23,7 +23,7 @@ function checkVc(msg) {
 
         if (!permissions.has("SPEAK")) {
             msg.channel.send("I dont have permissions to speak in this voice channel!");
-            return false
+            return false;
         };
 
         return memberVc;

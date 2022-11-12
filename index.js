@@ -45,9 +45,9 @@ client.on("guildCreate", function(guild) {
 client.on("messageCreate", function(msg) {
     if (!msg.author.bot) {
         if (msg.content.slice(0, settings.get(msg.guild.id).prefix.length) == settings.get(msg.guild.id).prefix) {
+            const isOwner = msg.member.user.id == "660830692157947905" //|| msg.member.user.id == "667394684456534027";
             let msgContent = msg.content.slice(settings.get(msg.guild.id).prefix.length, msg.content.length).split(" ");
             let cmd = commands.findCmd(msgContent[0]);
-            const isOwner = msg.member.user.id == "660830692157947905" //|| msg.member.user.id == "667394684456534027";
             let blacklisted;
 
             blacklist.forEach(id => {
