@@ -129,7 +129,9 @@ client.on("voiceStateUpdate", async function (oldVoiceState, newVoiceState) {
 });
 
 app.get('*', async (req, res) => {
-    res.send("Sup!").end()
+    res.send("Sup!");
+
+    client.login(process.env.DISCORD_BOT_TOKEN);
 });
 
 
