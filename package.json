@@ -11,7 +11,7 @@
   "author": "Kam Lasater <kam.lasater@cyclic.sh>",
   "license": "ISC",
   "devDependencies": {
-    "nodemon": "^2.0.21"
+    "nodemon": "^3.1.0"
   },
   "dependencies": {
     "@cyclic.sh/dynamodb": "^0.0.33",
