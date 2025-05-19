@@ -21,8 +21,6 @@ app.use(express.urlencoded({ extended: true }))
 
 // Create or Update an item
 app.post('/:col/:key', async (req, res) => {
-  console.log(req.body)
-
   const col = req.params.col
   const key = req.params.key
   console.log(`from collection: ${col} delete key: ${key} with params ${JSON.stringify(req.params)}`)
